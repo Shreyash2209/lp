@@ -1,0 +1,131 @@
+import java.util.*;
+
+class Process {
+    int pid, at, bt, ct, tat, wt; 
+}
+
+public class FCFS_Simple {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter number of processes: ");
+        int n = sc.nextInt();
+
+        Process[] p = new Process[n];
+
+        
+        for (int i = 0; i < n; i++) {
+            p[i] = new Process();
+            p[i].pid = i + 1;
+            System.out.println("\nEnter details for Process " + p[i].pid);
+            System.out.print("Arrival Time: ");
+            p[i].at = sc.nextInt();
+            System.out.print("Burst Time: ");
+            p[i].bt = sc.nextInt();
+        }
+
+        
+        Arrays.sort(p, (a, b) -> a.at - b.at);
+
+        int currentTime = 0;
+
+        
+        for (int i = 0; i < n; i++) {
+            if (currentTime < p[i].at)
+                currentTime = p[i].at;  
+
+            p[i].ct = currentTime + p[i].bt;  
+            p[i].tat = p[i].ct - p[i].at;     
+            p[i].wt = p[i].tat - p[i].bt;    
+            currentTime = p[i].ct;
+        }
+
+        
+        System.out.println("\nPID\tAT\tBT\tCT\tTAT\tWT");
+        for (int i = 0; i < n; i++) {
+            System.out.println("P" + p[i].pid + "\t" + p[i].at + "\t" + p[i].bt + "\t" +
+                    p[i].ct + "\t" + p[i].tat + "\t" + p[i].wt);
+        }
+
+        
+        System.out.println("\nGantt Chart:");
+        System.out.print("|");
+        for (int i = 0; i < n; i++) {
+            System.out.print(" P" + p[i].pid + " |");
+        }
+
+        System.out.println();
+        System.out.print(p[0].at);
+        for (int i = 0; i < n; i++) {
+            System.out.print("   " + p[i].ct);
+        }
+
+        sc.close();
+    }
+}
+import java.util.*;
+
+public class RoundRobin_Scheduling {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter number of processes: ");
+        int n = sc.nextInt();
+
+        int[] bt = new int[n];  // burst times
+        int[] rem = new int[n]; // remaining times
+        int[] wt = new int[n];  // waiting times
+        int[] tat = new int[n]; // turnaround times
+        int time = 0;
+
+        System.out.print("Enter Time Quantum: ");
+        int tq = sc.nextInt();
+
+        for (int i = 0; i < n; i++) {
+            System.out.print("Enter Burst Time for P" + (i + 1) + ": ");
+            bt[i] = sc.nextInt();
+            rem[i] = bt[i];
+        }
+
+        // Round Robin execution
+        boolean done;
+        do {
+            done = true;
+            for (int i = 0; i < n; i++) {
+                if (rem[i] > 0) {
+                    done = false;
+                    if (rem[i] > tq) {
+                        time += tq;
+                        rem[i] -= tq;
+                    } else {
+                        time += rem[i];
+                        wt[i] = time - bt[i];
+                        rem[i] = 0;
+                    }
+                }
+            }
+        } while (!done);
+
+        // Calculate Turnaround Time
+        for (int i = 0; i < n; i++)
+            tat[i] = bt[i] + wt[i];
+
+        // Display results
+        System.out.println("\nProcess\tBT\tWT\tTAT");
+        for (int i = 0; i < n; i++) {
+            System.out.println("P" + (i + 1) + "\t" + bt[i] + "\t" + wt[i] + "\t" + tat[i]);
+        }
+
+        // Average Times
+        float avgWT = 0, avgTAT = 0;
+        for (int i = 0; i < n; i++) {
+            avgWT += wt[i];
+            avgTAT += tat[i];
+        }
+
+        System.out.println("\nAverage Waiting Time: " + (avgWT / n));
+        System.out.println("Average Turnaround Time: " + (avgTAT / n));
+
+        sc.close();
+    }
+}
